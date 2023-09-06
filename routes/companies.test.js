@@ -96,6 +96,48 @@ describe("GET /companies", function () {
     });
   });
 
+  test("filtering via all queries works", async function () {
+    const resp = await request(app).get("/companies?minEmployees=1&maxEmployees=3&nameLike=c2");
+    expect(resp.body).toEqual({
+      companies:
+          [
+            {
+              handle: "c2",
+              name: "C2",
+              description: "Desc2",
+              numEmployees: 2,
+              logoUrl: "http://c2.img",
+            },
+          ],
+    });
+  });
+
+  test("filtering via one query works", async function () {
+    const resp = await request(app).get("/companies?nameLike=c2");
+    expect(resp.body).toEqual({
+      companies:
+          [
+            {
+              handle: "c2",
+              name: "C2",
+              description: "Desc2",
+              numEmployees: 2,
+              logoUrl: "http://c2.img",
+            },
+          ],
+    });
+  });
+
+  test("filtering with non-numbers throws an error", async function () {
+    const resp = await request(app).get("/companies?minEmployees=notANumber");
+    expect(resp.body).toEqual({
+      "error":{
+          "message": "minEmployee must be a number",
+          "status": 500,
+      }
+    });
+  });
+
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---
     // thus making it hard to test that the error-handler works with it. This

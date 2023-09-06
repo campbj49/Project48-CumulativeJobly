@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 const express = require("express");
 
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, ExpressError } = require("../expressError");
 const { ensureLoggedIn } = require("../middleware/auth");
 const Company = require("../models/company");
 
@@ -52,7 +52,27 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   try {
-    const companies = await Company.findAll();
+    //construct filter string
+    let filterString = "WHERE ";
+    let nextAnd = "";
+
+    if(req.query.minEmployees) {
+      if(isNaN(parseInt(req.query.minEmployees))) 
+        throw new ExpressError("minEmployee must be a number", 500);
+      filterString += `num_employees > ${req.query.minEmployees}`;
+      nextAnd = " AND ";
+    }
+    if(req.query.maxEmployees) {
+      if(isNaN(parseInt(req.query.maxEmployees))) 
+        throw new ExpressError("maxEmployee must be a number", 500);
+      filterString += `${nextAnd}num_employees < ${req.query.maxEmployees}`;
+      nextAnd = " AND ";
+    }
+    if(req.query.nameLike) 
+      filterString += `${nextAnd}LOWER(name) LIKE '%${req.query.nameLike.toLowerCase()}%'`;
+    if(filterString === "WHERE ") filterString = "";
+
+    const companies = await Company.filter(filterString);
     return res.json({ companies });
   } catch (err) {
     return next(err);
