@@ -51,9 +51,16 @@ async function commonAfterAll() {
 }
 
 
+/**Returns current ID for the J1 test job in the database */
+async function getTestID(){
+  let jobRes = await db.query(`SELECT id FROM jobs WHERE title = 'J1'`);
+  return jobRes.rows[0].id;
+}
+
 module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  getTestID,
 };

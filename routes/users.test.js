@@ -11,6 +11,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  getTestID,
   u1Token,
   a1Token,
 } = require("./_testCommon");
@@ -245,6 +246,47 @@ describe("GET /users/:username", function () {
     expect(resp.statusCode).toEqual(404);
   });
 });
+
+/************************************** POST /users/:username/:jobID */
+
+describe("POST /users/:username/:jobID", function () {
+  test("works for correct user", async function () {
+    let testID = await getTestID();
+    const resp = await request(app)
+        .post(`/users/u1/${testID}`)
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body).toEqual({applied:testID});
+  });
+
+  test("works for admin", async function () {
+    let testID = await getTestID();
+    const resp = await request(app)
+        .post(`/users/u1/${testID}`)
+        .set("authorization", `Bearer ${a1Token}`);
+    expect(resp.body).toEqual({applied:testID});
+  });
+
+  test("unauth for incorrect user", async function () {
+    const resp = await request(app)
+        .get(`/users/u2`)
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+        .get(`/users/u1`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found if user not found", async function () {
+    const resp = await request(app)
+        .get(`/users/nope`)
+        .set("authorization", `Bearer ${a1Token}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});
+
 
 /************************************** PATCH /users/:username */
 

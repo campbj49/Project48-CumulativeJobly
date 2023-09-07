@@ -12,6 +12,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  getTestID,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -228,3 +229,16 @@ describe("remove", function () {
     }
   });
 });
+
+
+/************************************* apply */
+describe("apply", function(){
+  test("works", async function (){
+    let testID = await getTestID();
+    const res = await User.apply("u1", testID);
+    expect(res).toEqual({
+      username:"u1",
+      jobID: expect.any(Number),
+    })
+  });
+})

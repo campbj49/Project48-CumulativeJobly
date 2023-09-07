@@ -79,6 +79,22 @@ router.get("/:username", ensureAdminOrCorrectUser, async function (req, res, nex
   }
 });
 
+/** POST /[username]/[jobID] => { succes }
+ * 
+ * Reteurns {applied:jobID}
+ * 
+ * Authorization required: correct user or admin
+ */
+
+router.post("/:username/:jobID", ensureAdminOrCorrectUser, async function (req, res, next) {
+  try {
+    const application = await User.apply(req.params.username, req.params.jobID);
+    return res.json({ applied: application.jobID });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 
 /** PATCH /[username] { user } => { user }
  *
