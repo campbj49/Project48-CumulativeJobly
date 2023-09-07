@@ -41,7 +41,7 @@ router.get("/", async function (req, res, next) {
       if(isNaN(parseInt(req.query.minSalary))) 
         throw new ExpressError("minSalary must be a number", 500);
 
-      filterString += `${nextAnd}num_employees < ${req.query.minSalary}`;
+      filterString += `${nextAnd}salary >= ${req.query.minSalary}`;
       nextAnd = " AND ";
     }
 
